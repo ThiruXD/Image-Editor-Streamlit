@@ -3,12 +3,34 @@
 import streamlit as st
 import numpy as np
 import io
+import os
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 
+# Import Cloudinary libraries safely
+try:
+    import cloudinary
+    import cloudinary.uploader
+    from cloudinary.utils import cloudinary_url
+    CLOUDINARY_AVAILABLE = True
+except ImportError:
+    CLOUDINARY_AVAILABLE = False
+
 # Page Configuration
-st.set_page_config(page_title="AI Photo Editor & Upscaler", layout="wide")
+st.set_page_config(page_title="AI Photo Editor & Cloudinary Upscaler", layout="wide")
 st.title("📸 AI Photo Editor & High-Res Upscaler")
 st.sidebar.title("Controls")
+
+# Initialize Cloudinary Configuration from Secrets if available
+if CLOUDINARY_AVAILABLE and "cloudinary" in st.secrets:
+    cloudinary.config(
+        cloud_name = st.secrets["cloudinary"]["cloud_name"],
+        api_key = st.secrets["cloudinary"]["api_key"],
+        api_secret = st.secrets["cloudinary"]["api_secret"],
+        secure = True
+    )
+    st.sidebar.success("☁️ Cloudinary API Connected!")
+else:
+    st.sidebar.warning("⚠️ Using Local Upscaler (Cloudinary Secrets Missing)")
 
 # 1. FILE UPLOADER WIDGET
 uploaded_file = st.sidebar.file_uploader(
@@ -38,24 +60,57 @@ if st.sidebar.button("🔄 Reset to Original"):
 img = st.session_state.transformed_base.copy()
 original = st.session_state.original.copy()
 
-# 3. HIGH RESOLUTION UPSCALER PANEL
-with st.sidebar.expander("🚀 Super Resolution Upscaler"):
+# 3. CLOUDINARY / LOCAL SUPER RESOLUTION UPSCALER PANEL
+with st.sidebar.expander("🚀 Super Resolution Upscaler", expanded=True):
     st.write(f"Current Resolution: **{img.width} x {img.height}** pixels")
+    
+    # Cloudinary provides excellent AI structural enlargement or standard resizing
     scale_factor = st.radio("Select Upscale Multiplier:", [2, 3, 4], index=0, horizontal=True)
     
     if st.button("✨ Apply High-Res Upscale"):
         new_w = img.width * scale_factor
         new_h = img.height * scale_factor
         
-        # High-quality mathematical Lanczos smoothing stretch
+        # Check if we should use Cloudinary cloud servers
+        if CLOUDINARY_AVAILABLE and "cloudinary" in st.secrets and uploaded_file is not None:
+            with st.spinner("☁️ Uploading & Upscaling on Cloudinary Servers..."):
+                try:
+                    # Convert active working image canvas to byte stream matrix for upload
+                    img_byte_arr = io.BytesIO()
+                    img.save(img_byte_arr, format='JPEG', quality=95)
+                    img_byte_arr = img_byte_arr.getvalue()
+                    
+                    # Send image to Cloudinary storage cloud
+                    upload_result = cloudinary.uploader.upload(img_byte_arr)
+                    public_id = upload_result['public_id']
+                    
+                    # Generate an engineered URL performing a clean upscaling transformation via Cloudinary cloud pipeline
+                    # 'dpr_auto' combined with explicit width scaling utilizes their high-end resizing layer
+                    cloud_url, _ = cloudinary_url(
+                        public_id, 
+                        width=new_w, 
+                        height=new_h, 
+                        crop="scale",
+                        quality="auto:best"
+                    )
+                    
+                    # Fetch down-stream processed image results back into memory arrays
+                    import requests
+                    response = requests.get(cloud_url)
+                    st.session_state.transformed_base = Image.open(io.BytesIO(response.content)).convert("RGB")
+                    
+                    st.toast(f"Cloudinary upscaled successfully to {new_w}x{new_h}!", icon="☁️")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Cloudinary error encountered: {e}. Falling back to local upscaler.")
+                    
+        # Local Fallback Routine (runs if credentials are missing or cloud transaction hits a snag)
+        # High-quality mathematical Lanczos smoothing stretch + Unsharp Mask crisp refinement
         upscaled = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
-        
-        # Unsharp Mask filter to crisp up soft blurred edges
         sharpened = upscaled.filter(ImageFilter.UnsharpMask(radius=1.5, percent=150, threshold=3))
         
-        # Commit to permanent base memory tracking
         st.session_state.transformed_base = sharpened
-        st.toast(f"Successfully upscaled {scale_factor}x to {new_w}x{new_h}!", icon="🎯")
+        st.toast(f"Locally upscaled {scale_factor}x to {new_w}x{new_h}!", icon="🎯")
         st.rerun()
 
 # 4. TRANSFORM PANEL (Permanent canvas structural changes)
@@ -89,7 +144,6 @@ with st.sidebar.expander("Advanced Effects & Portrait"):
         st.rerun()
         
     if st.button("Apply Background Blur"):
-        # Uniform artistic bokeh emulation fallback style for server execution
         st.session_state.transformed_base = img.filter(ImageFilter.GaussianBlur(radius=12))
         st.rerun()
 
@@ -153,7 +207,7 @@ with col2:
 
 # 10. NATIVE BUFFER DOWNLOAD SYSTEM
 buffer = io.BytesIO()
-img.save(buffer, format="JPEG", quality=98)  # High-quality compression output
+img.save(buffer, format="JPEG", quality=98)
 
 # By ThiruXD
 st.download_button(

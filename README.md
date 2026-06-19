@@ -1,10 +1,10 @@
-# Photo Editor Using OpenCV and Streamlit
+# Image Editor Using Pillow and Streamlit
 
 ## Project Overview
 
-This project is a web-based Photo Editor built using OpenCV and Streamlit. It allows users to upload images and apply various image processing operations through an interactive and user-friendly interface.
+This project is a web-based Photo Editor built using Pillow (PIL) and Streamlit. It allows users to upload images and apply various image processing operations through an interactive and user-friendly interface.
 
-The application demonstrates the practical use of Computer Vision techniques for image enhancement, filtering, transformation, and editing. By combining OpenCV's powerful image-processing capabilities with Streamlit's intuitive web framework, the project provides a simple yet effective image editing solution.
+The application demonstrates the practical use of digital image processing techniques for image enhancement, filtering, transformation, and editing. By combining Pillow's robust image manipulation capabilities with Streamlit's intuitive web framework, the project provides a simple yet effective, real-time image editing solution that runs seamlessly in local and cloud environments.
 
 ---
 
@@ -15,8 +15,8 @@ The primary objective of this project is to develop an interactive photo editing
 The application aims to:
 
 - Enhance image quality
-- Apply image filters
-- Perform image transformations
+- Apply non-destructive image filters
+- Perform geometric image transformations
 - Provide real-time image previews
 - Create an easy-to-use editing experience
 
@@ -24,37 +24,39 @@ The application aims to:
 
 ## Features
 
-- Image Upload Functionality
-- Grayscale Conversion
-- Image Resizing
-- Image Rotation
-- Image Flipping
-- Blur Effects
-- Edge Detection
-- Brightness Adjustment
-- Contrast Enhancement
-- Real-Time Preview
-- Download Edited Images
+- Dynamic Image Upload Functionality
+- Real-Time Sliders for Transient Adjustments
+- Linear/Non-Compounding Filter Modification
+- Grayscale Conversion & Blending
+- Interactive Image Resizing
+- Image Rotation (90-degree steps)
+- Image Flipping (Horizontal & Vertical)
+- Gaussian Blur Effects
+- Visual Contour and Edge Detection Filters
+- Brightness and Contrast Scaling
+- Real-Time Side-by-Side Preview Layout
+- Buffered Native File Downloader
 
 ---
 
 ## Technologies Used
 
 - Python
-- OpenCV
 - Streamlit
-- NumPy
 - Pillow (PIL)
+- NumPy
+- io (Standard library memory buffering)
 
 ---
 
 ## System Workflow
 
-1. User uploads an image.
-2. The image is processed using OpenCV functions.
-3. Selected editing operations are applied.
-4. The edited image is displayed instantly.
-5. Users can download the modified image.
+1. User drops an image into the sidebar file uploader.
+2. The system sets up stateful memory storage variables.
+3. Destructive mutations (rotations, flips, edge art styles) modify a hidden base canvas.
+4. Linear changes (sliders for blur, contrast, brightness, zoom) are rendered dynamically on top.
+5. The processed result renders immediately side-by-side with the original image.
+6. The user down-streams the raw matrix as a localized standard JPG download.
 
 ---
 
@@ -63,21 +65,21 @@ The application aims to:
 ### Image Enhancement
 - Brightness Adjustment
 - Contrast Adjustment
-- Sharpening
+- Kernel Sharpening
 
 ### Image Transformation
-- Resize Image
-- Rotate Image
-- Flip Image
+- Geometric Resizing
+- Multi-Axis Rotation (expand canvas borders)
+- Mirror/Flip Actions
+- Focal Point Center-Zoom Scaling
 
-### Filtering
-- Grayscale Filter
-- Blur Filter
-- Gaussian Blur
-
-### Edge Detection
-- Canny Edge Detection
-- Contour Detection
+### Filtering & Artistic Transitions
+- Grayscale Blending Intensity Slider
+- Safe Linear Gaussian Blur
+- Warm Temperature Overlay Matrix
+- Canny-Style Edge Detection
+- Vector Outline Contour Sketching
+- Posterized Cartoon Emulation
 
 ---
 
@@ -87,7 +89,7 @@ Clone the repository:
 
 ```bash
 git clone https://github.com/Gayathri-7095/photo-editor-opencv-streamlit.git
-````
+```
 
 Navigate to the project directory:
 
@@ -125,7 +127,7 @@ Upload an image and start editing using the available tools.
 
 * Photo enhancement
 * Basic image editing
-* Computer vision demonstrations
+* Lightweight browser-based adjustments
 * Educational learning projects
 * Image preprocessing workflows
 
@@ -135,36 +137,32 @@ Upload an image and start editing using the available tools.
 
 The application successfully performs various image editing and processing operations through a simple web interface. Users can upload images, apply modifications, preview results instantly, and download edited images.
 
-The project demonstrates the integration of Computer Vision and Web Application Development to create an interactive image editing platform.
+The project demonstrates the integration of Digital Image Processing and Web Application Development to create an interactive, cloud-compatible image editing platform.
 
 ---
 
 ## Key Learnings
 
-* OpenCV Fundamentals
-* Image Processing Techniques
-* Computer Vision Applications
-* Streamlit Web Development
-* User Interface Design
-* Real-Time Image Manipulation
-* Image Enhancement and Filtering
+* Stateful Web Session Management (`st.session_state`)
+* Linear vs. Compounding Matrix Mutations
+* Pixel-Level Image Transformations via Pillow
+* Streamlit Layout Grid Architecture
+* UI/UX Design Optimization for Media Processing
+* In-Memory Media File Buffering (`io.BytesIO`)
 
 ---
 
 ## Future Enhancements
 
-* Background Removal
-* Face Detection and Recognition
-* AI-Based Image Enhancement
-* Image Segmentation
-* Custom Filters and Effects
-* Batch Image Processing
-* Cloud Deployment
-* Mobile-Friendly Interface
+* Dynamic Object Background Removal
+* Face Detection Layer Integration
+* Multi-Step History Undos
+* Custom Canvas Text Overlay Watermarking
+* Batch Structural Image Processing
+* Local Color Range Extraction Filters
 
 ---
 
 ## Credits
 - ThiruXD
-- ChatGPT
-
+- Gemini AI

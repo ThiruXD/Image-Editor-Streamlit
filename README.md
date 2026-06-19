@@ -31,6 +31,8 @@ The application aims to:
 - Interactive Image Resizing
 - Image Rotation (90-degree steps)
 - Image Flipping (Horizontal & Vertical)
+- Image Upscaling
+- Image Compressing by size 
 - Gaussian Blur Effects
 - Visual Contour and Edge Detection Filters
 - Brightness and Contrast Scaling
@@ -66,6 +68,8 @@ The application aims to:
 - Brightness Adjustment
 - Contrast Adjustment
 - Kernel Sharpening
+- Image Upscaling
+- Image Compressing by size 
 
 ### Image Transformation
 - Geometric Resizing
